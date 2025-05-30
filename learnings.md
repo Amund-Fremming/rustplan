@@ -54,3 +54,10 @@ Sqlx also has support for some different fetch types:
 ## sqlx migrations
 
 Start of by installing the cli `cargo install sqlx-cli`.
+
+## Error handling
+
+Its useful to define your own errors with mappings. This lets us add a layer where we can log errors and create standarized errors,
+that remove any sensitive data before its returned to the user.
+By implementing `IntoResponse` we can use `?` to direct return if the underlying `Result<_,_>` fails, and the error message will be created
+as we defined in our custom error.

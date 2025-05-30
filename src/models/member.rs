@@ -1,15 +1,19 @@
-#[derive(Debug, sqlx::FromRow)]
+use uuid::Uuid;
+
+#[derive(Debug, sqlx::FromRow, serde::Deserialize, serde::Serialize)]
 pub struct Member {
     pub id: i32,
-    pub group_id: i32,
+    pub group_id: Uuid,
+    pub name: String,
     pub locked_reply: bool,
 }
 
 impl Member {
-    pub fn new(group_id: i32, locked_reply: bool) -> Self {
+    pub fn new(group_id: Uuid, name: String, locked_reply: bool) -> Self {
         Self {
             id: 0,
             group_id,
+            name,
             locked_reply,
         }
     }

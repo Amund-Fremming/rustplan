@@ -1,6 +1,7 @@
 mod db;
 mod handlers;
 mod models;
+mod wrappers;
 
 use axum::routing::*;
 use handlers::*;
@@ -40,12 +41,12 @@ async fn main() {
 
     let group_router: Router = Router::new()
         .route("/", post(create_group))
-        .route("/{id}", get(get_group))
+        .route("/{id}", get(get_group_data))
         .with_state(app_state.clone());
 
     let member_router = Router::new()
-        .route("/create/{group_id}", post(create_member))
-        .route("/{id}", get(get_member))
+        .route("/create/{name}/{group_id}", post(create_member))
+        .route("/{name}", get(get_member))
         .with_state(app_state.clone());
 
     let vote_router = Router::new()

@@ -1,32 +1,38 @@
 use std::sync::Arc;
 
 use axum::{
+    Json,
     extract::{Path, State},
     http::StatusCode,
     response::IntoResponse,
 };
+use uuid::Uuid;
 
 use crate::{
     db::{self},
-    models::AppState,
+    models::{AppState, ServerError},
 };
 
 pub async fn get_member(
     State(state): State<Arc<AppState>>,
-    Path(id): Path<i32>,
+    Path(name): Path<String>,
 ) -> impl IntoResponse {
-    match db::get_member_by_id(state.get_pool(), id).await {
-        Ok(Some(_)) => StatusCode::OK,
-        Ok(None) => StatusCode::NOT_FOUND,
-        Err(_) => StatusCode::INTERNAL_SERVER_ERROR,
+    let result = db::get_member_by_name(state.get_pool(), &name).await?;
+
+    match result {
+        Some(member) => Ok(Json(member)),
+        None => Err(ServerError::HandlerError(
+            StatusCode::NOT_FOUND,
+            format!("User with name {} does not exist.", name),
+        )),
     }
 }
 
 pub async fn create_member(
     State(state): State<Arc<AppState>>,
-    Path(group_id): Path<i32>,
+    Path((name, group_id)): Path<(String, Uuid)>,
 ) -> impl IntoResponse {
-    match db::create_member(state.get_pool(), group_id).await {
+    match db::create_member(state.get_pool(), &name, group_id).await {
         Ok(_) => StatusCode::OK,
         Err(_) => StatusCode::BAD_REQUEST,
     }
