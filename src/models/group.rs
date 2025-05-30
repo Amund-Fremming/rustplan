@@ -4,17 +4,12 @@ use uuid::Uuid;
 pub struct Group {
     pub id: Uuid,
     pub name: String,
-    pub description: String,
+    pub description: Option<String>,
     pub year: i32,
 }
 
 impl Group {
-    pub fn new(name: String, desc_option: Option<String>, year: i32) -> Self {
-        let description = match desc_option {
-            Some(string) => string,
-            None => String::new(),
-        };
-
+    pub fn new(name: String, description: Option<String>, year: i32) -> Self {
         Self {
             id: Uuid::new_v4(),
             name,

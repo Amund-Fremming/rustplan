@@ -41,7 +41,7 @@ async fn main() {
 
     let group_router: Router = Router::new()
         .route("/", post(create_group))
-        .route("/{id}", get(get_group_data))
+        .route("/{id}", get(get_group_with_relations))
         .with_state(app_state.clone());
 
     let member_router = Router::new()
@@ -51,7 +51,7 @@ async fn main() {
 
     let vote_router = Router::new()
         .route("/", post(create_vote))
-        .route("/{id}", get(get_vote));
+        .with_state(app_state.clone());
 
     let api_routes = Router::new()
         .nest("/groups", group_router)

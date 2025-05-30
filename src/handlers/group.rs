@@ -10,8 +10,8 @@ use uuid::Uuid;
 
 use crate::{
     db,
-    models::{AppState, ServerError},
-    wrappers::GroupWithRelations,
+    models::{AppState, Group, ServerError},
+    wrappers::{CreateGameRequest, GroupWithRelations},
 };
 
 pub async fn get_group_with_relations(
@@ -33,7 +33,18 @@ pub async fn get_group_with_relations(
     Ok(Json(dto))
 }
 
-pub async fn create_group() -> impl IntoResponse {
-    "post"
-    // return code
+pub async fn create_group(
+    State(state): State<Arc<AppState>>,
+    Json(game_params): Json<CreateGameRequest>,
+) -> impl IntoResponse {
+    let group = Group::new(game_params.name, game_params.description, game_params.year);
+    let result = db::create_group(&state.get_pool(), group).await?;
+
+    if result == false {
+        return Err(ServerError::CriticalError(String::from(
+            "Failed to insert data.",
+        )));
+    }
+
+    Ok(())
 }

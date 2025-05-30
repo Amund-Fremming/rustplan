@@ -1,7 +1,4 @@
-use crate::{
-    db::Vote,
-    models::{Group, Member},
-};
+use crate::models::{Group, Member, Vote};
 
 #[derive(serde::Deserialize, serde::Serialize)]
 pub struct GroupWithRelations {
