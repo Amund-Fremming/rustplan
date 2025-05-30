@@ -20,35 +20,14 @@ pub async fn get_member_by_name(
     .await
 }
 
-pub async fn get_members_from_group(
-    db_pool: &Pool<Postgres>,
-    code: Uuid,
-) -> Result<Vec<Member>, sqlx::Error> {
-    sqlx::query_as!(
-        Member,
-        r#"
-        SELECT id, group_id, name, locked_reply
-        FROM member
-        WHERE member.group_id = $1;
-        "#,
-        code
-    )
-    .fetch_all(db_pool)
-    .await
-}
-
-pub async fn create_member(
-    db_pool: &Pool<Postgres>,
-    name: &String,
-    group_id: Uuid,
-) -> Result<(), sqlx::Error> {
+pub async fn create_member(db_pool: &Pool<Postgres>, member: Member) -> Result<(), sqlx::Error> {
     sqlx::query!(
         r#"
         INSERT INTO member (group_id, name, locked_reply)
         VALUES ($1, $2, $3);
         "#,
-        group_id,
-        name,
+        member.group_id,
+        member.name,
         false
     )
     .execute(db_pool)

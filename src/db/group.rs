@@ -1,7 +1,7 @@
 use sqlx::{Pool, Postgres};
 use uuid::Uuid;
 
-use crate::models::Group;
+use crate::models::{Group, Member};
 
 pub async fn create_group(db_pool: &Pool<Postgres>, group: Group) -> Result<bool, sqlx::Error> {
     let result = sqlx::query!(
@@ -31,5 +31,22 @@ pub async fn get_group(db_pool: &Pool<Postgres>, id: Uuid) -> Result<Option<Grou
         id
     )
     .fetch_optional(db_pool)
+    .await
+}
+
+pub async fn get_members_from_group(
+    db_pool: &Pool<Postgres>,
+    code: Uuid,
+) -> Result<Vec<Member>, sqlx::Error> {
+    sqlx::query_as!(
+        Member,
+        r#"
+        SELECT id, group_id, name, locked_reply
+        FROM member
+        WHERE member.group_id = $1;
+        "#,
+        code
+    )
+    .fetch_all(db_pool)
     .await
 }

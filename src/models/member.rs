@@ -9,12 +9,12 @@ pub struct Member {
 }
 
 impl Member {
-    pub fn new(group_id: Uuid, name: String, locked_reply: bool) -> Self {
+    pub fn new(group_id: Uuid, name: String) -> Self {
         Self {
             id: 0,
             group_id,
             name,
-            locked_reply,
+            locked_reply: false,
         }
     }
 }
