@@ -10,6 +10,7 @@ pub async fn index(Path(id): Path<Uuid>) -> impl IntoResponse {
         <!DOCTYPE html>
         <html>
         <head>
+            <meta name="viewport" content="width=device-width, initial-scale=1" />
             <link rel="stylesheet" href="/static/participant.css">
             <script type="module" src="/static/participant.js" defer></script>
         </head>
@@ -38,6 +39,7 @@ pub async fn create() -> impl IntoResponse {
         <!DOCTYPE html>
         <html>
         <head>
+            <meta name="viewport" content="width=device-width, initial-scale=1" />
             <link rel="stylesheet" href="/static/host.css">
             <script type="module" src="/static/host.js" defer></script>
         </head>

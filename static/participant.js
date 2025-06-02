@@ -8,9 +8,12 @@ const linkToCopy = `${urlBase}/page/${groupId}`;
 const copyButton = document.getElementById("copy");
 
 const httpService = new HttpService();
+
 let groupData = undefined;
 
-window.onload = () => {
+window.onload = async () => {
+  groupData = await httpService.getGroupData(groupId);
+  header.innerHTML = groupData.group.name;
   dialog.showModal();
 };
 
@@ -32,6 +35,7 @@ modalButton?.addEventListener("click", async () => {
   await httpService.joinGroup(groupId, nameInput.value);
 
   groupData = await httpService.getGroupData(groupId);
+  header.innerHTML = groupData.group.name;
   dialog.close();
 });
 
