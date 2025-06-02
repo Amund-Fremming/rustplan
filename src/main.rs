@@ -7,6 +7,7 @@ use axum::routing::*;
 use handlers::*;
 use models::AppState;
 use std::{env, sync::Arc};
+use tower_http::services::ServeDir;
 use tracing::error;
 
 use tracing_subscriber::FmtSubscriber;
@@ -61,7 +62,10 @@ async fn main() {
         .nest("/groups", group_router)
         .nest("/members", member_router)
         .nest("/votes", vote_router)
-        .route("/health", get(async || "OK"));
+        .route("/page/{id}", get(index))
+        .route("/page", get(create))
+        .route("/health", get(async || "OK"))
+        .nest_service("/static", ServeDir::new("./static"));
 
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
     println!("Running on adr: {}", listener.local_addr().unwrap());

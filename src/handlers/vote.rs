@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use axum::{Json, extract::State, response::IntoResponse};
+use axum::{Json, extract::State, http::StatusCode, response::IntoResponse};
 
 use crate::{
     db,
@@ -18,11 +18,11 @@ pub async fn create_vote(
         request.week_number,
         request.day_of_week,
     );
-    let result = db::create_vote(&state.get_pool(), vote).await?;
+    let result = db::create_vote(state.get_pool(), vote).await?;
 
     if result == false {
         return Err(ServerError::CriticalError(String::from("Insert failed.")));
     }
 
-    Ok(())
+    Ok(StatusCode::OK)
 }
