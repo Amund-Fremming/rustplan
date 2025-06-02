@@ -11,7 +11,7 @@ use uuid::Uuid;
 use crate::{
     db,
     models::{AppState, Group, Member, ServerError},
-    wrappers::{CreateGameRequest, CreateMemberRequest, GroupWithRelations},
+    wrappers::{CreateGroupRequest, CreateMemberRequest, GroupWithRelations},
 };
 
 pub async fn get_group_with_relations(
@@ -35,9 +35,13 @@ pub async fn get_group_with_relations(
 
 pub async fn create_group(
     State(state): State<Arc<AppState>>,
-    Json(game_params): Json<CreateGameRequest>,
+    Json(group_params): Json<CreateGroupRequest>,
 ) -> impl IntoResponse {
-    let group = Group::new(game_params.name, game_params.description, game_params.year);
+    let group = Group::new(
+        group_params.name,
+        group_params.description,
+        group_params.year,
+    );
     let result = db::create_group(&state.get_pool(), group).await?;
 
     if result == false {
@@ -46,7 +50,7 @@ pub async fn create_group(
         )));
     }
 
-    Ok(())
+    Ok(StatusCode::OK)
 }
 
 pub async fn add_member_to_group(
@@ -58,10 +62,33 @@ pub async fn add_member_to_group(
 
     if group_members
         .iter()
-        .any(|member| member.name != request.name)
+        .all(|member| member.name != request.name)
     {
         db::create_member(&state.get_pool(), member).await?;
     }
 
-    Ok(())
+    Ok(StatusCode::OK)
+}
+
+pub async fn remove_member_from_group(
+    State(state): State<Arc<AppState>>,
+    Path((group_id, member_id)): Path<(Uuid, i32)>,
+) -> Result<impl IntoResponse, ServerError> {
+    let group = db::get_group(&state.get_pool(), group_id).await?;
+    if let None = group {
+        return Ok(StatusCode::NOT_FOUND);
+    }
+
+    let member = db::get_member_by_id(&state.get_pool(), member_id).await?;
+    if let None = member {
+        return Ok(StatusCode::NOT_FOUND);
+    }
+
+    let result = db::remove_member_from_group(&state.get_pool(), member_id).await?;
+    match result {
+        true => Ok(StatusCode::OK),
+        false => Err(ServerError::CriticalError(String::from(
+            "Failed to delete to database.",
+        ))),
+    }
 }

@@ -6,7 +6,6 @@ use axum::{
     http::StatusCode,
     response::IntoResponse,
 };
-use uuid::Uuid;
 
 use crate::{
     db::{self},
@@ -25,15 +24,5 @@ pub async fn get_member(
             StatusCode::NOT_FOUND,
             format!("User with name {} does not exist.", name),
         )),
-    }
-}
-
-pub async fn create_member(
-    State(state): State<Arc<AppState>>,
-    Path((name, group_id)): Path<(String, Uuid)>,
-) -> impl IntoResponse {
-    match db::create_member(state.get_pool(), &name, group_id).await {
-        Ok(_) => StatusCode::OK,
-        Err(_) => StatusCode::BAD_REQUEST,
     }
 }

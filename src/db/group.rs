@@ -24,7 +24,7 @@ pub async fn get_group(db_pool: &Pool<Postgres>, id: Uuid) -> Result<Option<Grou
     sqlx::query_as!(
         Group,
         r#"
-        SELECT id, name, description, year
+        SELECT id, name,description, year
         FROM "group"
         WHERE id= $1
         "#,

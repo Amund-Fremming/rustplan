@@ -41,11 +41,15 @@ async fn main() {
 
     let group_router: Router = Router::new()
         .route("/", post(create_group))
+        .route("/join", post(add_member_to_group))
         .route("/{id}", get(get_group_with_relations))
+        .route(
+            "/remove/{group_id}/{member_id}",
+            delete(remove_member_from_group),
+        )
         .with_state(app_state.clone());
 
     let member_router = Router::new()
-        .route("/create/{name}/{group_id}", post(create_member))
         .route("/{name}", get(get_member))
         .with_state(app_state.clone());
 
