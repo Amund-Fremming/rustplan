@@ -55,7 +55,7 @@ async fn main() {
         .with_state(app_state.clone());
 
     let vote_router = Router::new()
-        .route("/", post(create_vote))
+        .route("/", post(toggle_vote))
         .with_state(app_state.clone());
 
     let api_routes = Router::new()

@@ -1,0 +1,79 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT id, group_id, member_id, week_number, day_of_week as \"day_of_week: DayOfWeek\"\n        FROM vote\n        WHERE group_id = $1 AND member_id = $2 AND week_number = $3 AND day_of_week = $4\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "group_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "member_id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 3,
+        "name": "week_number",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 4,
+        "name": "day_of_week: DayOfWeek",
+        "type_info": {
+          "Custom": {
+            "name": "dayofweek",
+            "kind": {
+              "Enum": [
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday",
+                "Sunday"
+              ]
+            }
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Int4",
+        "Int4",
+        {
+          "Custom": {
+            "name": "dayofweek",
+            "kind": {
+              "Enum": [
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday",
+                "Sunday"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "e92d940627f6aa74eb5473e87882e323b426c04c64b8ed2130f083be43d21690"
+}

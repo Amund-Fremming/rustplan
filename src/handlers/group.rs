@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::{collections::HashSet, sync::Arc};
 
 use axum::{
     Json,
@@ -10,14 +10,14 @@ use uuid::Uuid;
 
 use crate::{
     db,
-    models::{AppState, Group, Member, ServerError},
-    wrappers::{CreateGroupRequest, CreateMemberRequest, GroupWithRelations},
+    models::{AppState, DayOfWeek, Group, Member, ServerError},
+    wrappers::{CreateGroupRequest, CreateMemberRequest, GroupDto, Row, Week},
 };
 
 pub async fn get_group_with_relations(
     State(state): State<Arc<AppState>>,
     Path(id): Path<Uuid>,
-) -> impl IntoResponse {
+) -> Result<impl IntoResponse, ServerError> {
     let group_res = db::get_group(state.get_pool(), id).await?;
     if let None = group_res {
         return Err(ServerError::HandlerError(
@@ -26,11 +26,39 @@ pub async fn get_group_with_relations(
         ));
     }
 
+    let group = db::get_group(state.get_pool(), id)
+        .await?
+        .ok_or(ServerError::HandlerError(
+            StatusCode::INTERNAL_SERVER_ERROR,
+            String::from("Failed to fetch data"),
+        ))?;
+
     let members = db::get_members_from_group(state.get_pool(), id).await?;
     let votes = db::get_votes_from_group(state.get_pool(), id).await?;
-    let dto = GroupWithRelations::new(group_res.unwrap(), members, votes);
+    let vote_map: HashSet<(i32, i32, DayOfWeek)> = votes
+        .iter()
+        .map(|vote| (vote.member_id, vote.week_number, vote.day_of_week))
+        .collect();
 
-    Ok(Json(dto))
+    let mut group_dto = GroupDto::new(group.name);
+
+    for week_nr in 1..=52 {
+        let mut week = Week::new(week_nr);
+        for member in &members {
+            let mut row = Row::new((*member.name).to_string());
+            let member_id = &member.id;
+            for day_nr in 0..7 {
+                let key = (*member_id, week_nr, DayOfWeek::try_from(day_nr).unwrap());
+                let has_voted = vote_map.contains(&key);
+                row.set_vote(day_nr, has_voted);
+            }
+            week.add_row(row);
+        }
+
+        group_dto.add_week(week);
+    }
+
+    Ok(Json(group_dto))
 }
 
 pub async fn create_group(

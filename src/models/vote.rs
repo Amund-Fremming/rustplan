@@ -1,4 +1,4 @@
-use super::{DayOfWeek, day_of_week};
+use super::DayOfWeek;
 use uuid::Uuid;
 
 #[derive(serde::Deserialize, serde::Serialize, Debug, Clone, sqlx::FromRow)]
